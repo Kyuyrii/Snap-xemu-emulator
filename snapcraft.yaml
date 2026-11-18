@@ -60,7 +60,7 @@ parts:
       - xemu
     override-stage: |
       craftctl default
-      sed -i 's|Exec=xemu|Exec=xemu [Kyu]|' $CRAFT_PART_INSTALL/usr/share/applications/xemu.desktop
+      sed -i 's|Name=xemu|Name=xemu [Kyu]|' $CRAFT_PART_INSTALL/usr/share/applications/xemu.desktop
       craftctl set version=$(dpkg-parsechangelog -l $CRAFT_PART_INSTALL/usr/share/doc/xemu/changelog.*.gz -S Version | sed -e 's/^1://' -e 's/~.*//')
     prime:
       - usr/bin/xemu
