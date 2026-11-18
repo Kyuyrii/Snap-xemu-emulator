@@ -1,1 +1,0 @@
-# Snap-xemu-emulator

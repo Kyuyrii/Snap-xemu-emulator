@@ -1,0 +1,79 @@
+name: xemu-emulator
+base: core26
+adopt-info: xemu-app
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+summary: Original Xbox Emulator
+description: |
+ A free and open-source application that emulates the original Microsoft Xbox game console.
+ Supports connecting up to 4 controllers for local play, networking for multiplayer, resolution scaling, and more.
+grade: stable
+confinement: strict
+compression: lzo
+icon: xemu.png
+
+apps:
+  xemu-emulator:
+    command-chain: [force-snap-common-folder]
+    command: usr/bin/xemu
+    desktop: usr/share/applications/xemu.desktop
+    common-id: app.xemu.xemu
+    extensions: [gnome]
+    environment:
+      HOME: $SNAP_USER_COMMON
+    plugs:
+      - audio-playback
+      - network
+      - network-bind
+      - screen-inhibit-control
+      - home
+      - removable-media
+      - mount-observe
+      - joystick
+      - bluez
+      - udisks2
+      - system-observe
+      - hardware-observe
+      - upower-observe
+
+plugs:
+  shared-memory:
+    private: true
+
+package-repositories:
+  - type: apt
+    url: https://ppa.launchpadcontent.net/mborgerson/xemu/ubuntu
+    suites: [resolute]
+    components: [main]
+    architectures: [amd64, arm64]
+    key-id: E7424C8A3CD6F5AC60D0AA4B43839AFE0E7EBFE0
+
+parts:
+  xemu-app:
+    plugin: nil
+    stage-packages:
+      - xemu
+    override-stage: |
+      craftctl default
+      sed -i 's|Exec=xemu|Exec=xemu [Kyu]|' $CRAFT_PART_INSTALL/usr/share/applications/xemu.desktop
+      craftctl set version=$(dpkg-parsechangelog -l $CRAFT_PART_INSTALL/usr/share/doc/xemu/changelog.*.gz -S Version | sed -e 's/^1://' -e 's/~.*//')
+    prime:
+      - usr/bin/xemu
+      - usr/share/applications/xemu.desktop
+      - usr/share/doc/xemu
+      - usr/share/icons/hicolor/*/apps/xemu*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpcap.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libsamplerate.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libslirp.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libusb-1.0.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libibverbs.so*
+
+  other-files:
+    after: [xemu-app]
+    plugin: dump
+    source: ./other-files
